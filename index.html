@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            perspective: 2000px;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(138, 43, 226, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(0, 191, 255, 0.2) 0%, transparent 50%);
+            animation: gradientShift 8s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .character {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            opacity: 0;
+            animation: characterBurst 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            filter: drop-shadow(0 30px 80px rgba(138, 43, 226, 0.6));
+            transition: all 0.8s ease;
+        }
+
+        .character.moved {
+            left: 15%;
+            transform: translate(-50%, -50%) scale(0.7);
+        }
+
+        .character img {
+            width: 220px;
+            height: auto;
+        }
+
+        @keyframes characterBurst {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+            }
+            60% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1) rotate(10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+        }
+
+        .website-card {
+            position: absolute;
+            width: 380px;
+            height: 240px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            overflow: hidden;
+            opacity: 0;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .website-card:hover {
+            transform: scale(1.05) translateZ(50px) !important;
+            box-shadow: 0 50px 120px rgba(138, 43, 226, 0.6);
+        }
+
+        .card-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(0, 191, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .website-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .energy-ring {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 400px;
+            height: 400px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: energyPulse 3s ease-in-out infinite;
+            z-index: 1;
+            transition: all 0.8s ease;
+        }
+
+        .energy-ring.hidden {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        @keyframes energyPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.15);
+                opacity: 0.2;
+            }
+        }
+
+        .light-beam {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(138, 43, 226, 0.5), transparent);
+            left: 50%;
+            transform: translateX(-50%) scaleY(0);
+            transform-origin: top;
+            animation: beamDrop 1s ease-out forwards;
+        }
+
+        @keyframes beamDrop {
+            to {
+                transform: translateX(-50%) scaleY(1);
+            }
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 200;
+            backdrop-filter: blur(10px);
+            transition: opacity 0.5s ease;
+        }
+
+        .progress-bar.hidden {
+            opacity: 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8a2be2, #00bfff);
+            width: 0%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
+            transition: width 0.3s ease;
+        }
+
+        .glow-orb {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.2), transparent 70%);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbPulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.1; }
+        }
+
+        .cta-container {
+            position: absolute;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%) scale(0);
+            opacity: 0;
+            text-align: center;
+            z-index: 150;
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .cta-container.visible {
+            transform: translateY(-50%) scale(1);
+            opacity: 1;
+        }
+
+        .cta-title {
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .cta-subtitle {
+            font-size: 24px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 50px;
+            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s ease;
+            animation: buttonFloat 3s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        @keyframes buttonFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 30px 80px rgba(138, 43, 226, 0.6);
+        }
+
+        .grid-container {
+            position: absolute;
+            right: 12%;
+            top: 50%;
+            transform: translateY(-50%);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            opacity: 0;
+            z-index: 120;
+        }
+
+        .grid-container.visible {
+            animation: gridFadeIn 1s ease forwards;
+        }
+
+        @keyframes gridFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .grid-card {
+            width: 280px;
+            height: 180px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8) translateY(30px);
+        }
+
+        .grid-card.animate {
+            animation: cardPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes cardPop {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .grid-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 30px 80px rgba(138, 43, 226, 0.5);
+        }
+
+        .grid-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="bg-gradient"></div>
+        <div class="glow-orb"></div>
+        <div class="energy-ring" id="ring1"></div>
+        <div class="energy-ring" id="ring2" style="width: 500px; height: 500px; animation-delay: 0.5s; border-color: rgba(0, 191, 255, 0.3);"></div>
+        <div class="light-beam"></div>
+        <div class="character" id="character">
+            <img src="https://files.catbox.moe/klzkry.png" alt="Character">
+        </div>
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="grid-container" id="gridContainer"></div>
+        
+        <div class="cta-container" id="ctaContainer">
+            <div class="cta-title">NEED ONE?</div>
+            <div class="cta-subtitle">Let's create something amazing</div>
+            <div class="cta-button" onclick="alert('Add your contact/DM link here!')">DM ME</div>
+        </div>
+    </div>
+
+    <script>
+        const websites = [
+            { img: 'https://files.catbox.moe/qr34ts.jpg', delay: 0 },
+            { img: 'https://files.catbox.moe/o756ar.jpg', delay: 200 },
+            { img: 'https://files.catbox.moe/czf9al.jpg', delay: 400 },
+            { img: 'https://files.catbox.moe/qnv72u.jpg', delay: 600 },
+            { img: 'https://files.catbox.moe/6dxgzm.jpg', delay: 800 },
+            { img: 'https://files.catbox.moe/lptwfv.jpg', delay: 1000 }
+        ];
+
+        const container = document.querySelector('.container');
+        const progressFill = document.getElementById('progressFill');
+        const character = document.getElementById('character');
+        const progressBar = document.getElementById('progressBar');
+        const ctaContainer = document.getElementById('ctaContainer');
+        const gridContainer = document.getElementById('gridContainer');
+        const ring1 = document.getElementById('ring1');
+        const ring2 = document.getElementById('ring2');
+        
+        let currentIndex = 0;
+        const cardRevealDuration = 2000;
+        const totalCardTime = websites.length * cardRevealDuration;
+        let startTime = Date.now();
+        let isShowingCTA = false;
+
+        function updateProgress() {
+            if (isShowingCTA) return;
+            
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min((elapsed / totalCardTime) * 100, 100);
+            progressFill.style.width = progress + '%';
+            
+            if (progress < 100) {
+                requestAnimationFrame(updateProgress);
+            }
+        }
+
+        function createExplosion(x, y) {
+            const colors = ['#8a2be2', '#00bfff', '#fff'];
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 8 + 4;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.background = color;
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.boxShadow = `0 0 ${size * 3}px ${color}`;
+                container.appendChild(particle);
+
+                const angle = (Math.PI * 2 * i) / 40;
+                const velocity = 100 + Math.random() * 200;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                let scale = 1;
+                let time = 0;
+
+                function animate() {
+                    time += 0.016;
+                    posX += vx * 0.016;
+                    posY += vy * 0.016 + (time * 150);
+                    opacity -= 0.02;
+                    scale += 0.04;
+
+                    particle.style.transform = `translate(${posX - x}px, ${posY - y}px) scale(${scale})`;
+                    particle.style.opacity = opacity;
+
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                }
+                animate();
+            }
+        }
+
+        function getPositionForIndex(index, total) {
+            const radius = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
+            
+            return {
+                x: centerX + Math.cos(angle) * radius - 190,
+                y: centerY + Math.sin(angle) * radius - 120
+            };
+        }
+
+        function createWebsiteCard(data, index) {
+            const card = document.createElement('div');
+            card.className = 'website-card';
+            
+            const content = document.createElement('div');
+            content.className = 'card-content';
+            
+            const img = document.createElement('img');
+            img.src = data.img;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'card-overlay';
+            
+            content.appendChild(img);
+            content.appendChild(overlay);
+            card.appendChild(content);
+            container.appendChild(card);
+
+            const centerX = window.innerWidth / 2 - 190;
+            const centerY = window.innerHeight / 2 - 120;
+            
+            card.style.left = centerX + 'px';
+            card.style.top = centerY + 'px';
+            card.style.transform = 'scale(0) rotate(180deg)';
+
+            setTimeout(() => {
+                const targetPos = getPositionForIndex(index, websites.length);
+                
+                card.style.transition = 'all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                card.style.opacity = '1';
+                card.style.left = targetPos.x + 'px';
+                card.style.top = targetPos.y + 'px';
+                card.style.transform = 'scale(1) rotate(0deg)';
+
+                createExplosion(targetPos.x + 190, targetPos.y + 120);
+            }, 50);
+
+            return card;
+        }
+
+        function revealWebsites() {
+            if (currentIndex < websites.length) {
+                createWebsiteCard(websites[currentIndex], currentIndex);
+                currentIndex++;
+                setTimeout(revealWebsites, cardRevealDuration);
+            } else {
+                setTimeout(transitionToCTA, 1000);
+            }
+        }
+
+        function transitionToCTA() {
+            isShowingCTA = true;
+            
+            progressBar.classList.add('hidden');
+            ring1.classList.add('hidden');
+            ring2.classList.add('hidden');
+            
+            character.classList.add('moved');
+            
+            const cards = document.querySelectorAll('.website-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transition = 'all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0) rotate(-180deg)';
+                    
+                    const rect = card.getBoundingClientRect();
+                    createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                }, index * 100);
+            });
+            
+            setTimeout(() => {
+                cards.forEach(card => card.remove());
+                showGrid();
+            }, 1200);
+        }
+
+        function showGrid() {
+            gridContainer.classList.add('visible');
+            
+            websites.forEach((site, index) => {
+                const gridCard = document.createElement('div');
+                gridCard.className = 'grid-card';
+                
+                const img = document.createElement('img');
+                img.src = site.img;
+                
+                gridCard.appendChild(img);
+                gridContainer.appendChild(gridCard);
+                
+                setTimeout(() => {
+                    gridCard.classList.add('animate');
+                    const rect = gridCard.getBoundingClientRect();
+                    createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                }, site.delay);
+            });
+            
+            setTimeout(() => {
+                ctaContainer.classList.add('visible');
+                createExplosion(window.innerWidth * 0.85, window.innerHeight * 0.5);
+            }, 1400);
+        }
+
+        setTimeout(() => {
+            startTime = Date.now();
+            updateProgress();
+            revealWebsites();
+        }, 1500);
+
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (e) => {
+            if (isShowingCTA) return;
+            
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            const cards = document.querySelectorAll('.website-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardX = rect.left + rect.width / 2;
+                const cardY = rect.top + rect.height / 2;
+                
+                const deltaX = (mouseX - cardX) / 40;
+                const deltaY = (mouseY - cardY) / 40;
+                
+                if (!card.matches(':hover')) {
+                    card.style.transform = `perspective(1000px) rotateY(${deltaX}deg) rotateX(${-deltaY}deg) scale(1)`;
+                }
+            });
+        });
+
+        function createAmbientParticles() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.background = Math.random() > 0.5 ? 'rgba(138, 43, 226, 0.6)' : 'rgba(0, 191, 255, 0.6)';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                particle.style.boxShadow = `0 0 ${size * 3}px ${particle.style.background}`;
+                container.appendChild(particle);
+
+                function float() {
+                    const duration = 4000 + Math.random() * 3000;
+                    const newX = Math.random() * window.innerWidth;
+                    const newY = Math.random() * window.innerHeight;
+                    
+                    particle.style.transition = `all ${duration}ms ease-in-out`;
+                    particle.style.left = newX + 'px';
+                    particle.style.top = newY + 'px';
+                    particle.style.opacity = Math.random() * 0.6 + 0.2;
+                    
+                    setTimeout(float, duration);
+                }
+                setTimeout(float, Math.random() * 2000);
+            }
+        }
+
+        createAmbientParticles();
+    </script>
+</body>
+</html>
